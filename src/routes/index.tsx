@@ -84,7 +84,6 @@ function ThreeTour() {
   const installWrapRef = useRef<HTMLDivElement>(null);
   const installBarRef = useRef<HTMLSpanElement>(null);
   const lenisRef = useRef<Lenis | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
 
   const [host] = useState(() => {
     const d = document.createElement("div");
@@ -97,13 +96,6 @@ function ThreeTour() {
   const chapRef = useRef(-1);
   const doneRef = useRef(false);
   const instVisRef = useRef(false);
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 820 || window.innerHeight > window.innerWidth);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
 
   // Lenis smooth scrolling
   useEffect(() => {
@@ -199,23 +191,17 @@ function ThreeTour() {
 
   const screen = Math.max(0, chapter);
   const cap = chapter >= 0 && !installVisible ? CHAPTERS[chapter] : null;
-  const activeNav = installVisible ? 4 : (chapter >= 0 ? chapter : -1);
 
   return (
     <div className="mc-page">
       <TopBar barRef={barRef} />
-      {isMobile && <MobileNav activeChapter={activeNav} onSelect={go} />}
       <div className="mc-scroll">
         <div ref={stageRef} className="mc-stage">
           <div ref={heroRef} className="mc-hero">
             <Hero onEnter={() => go(0)} />
           </div>
-          {CHAPTERS.map((c, i) => (
+          {CHAPTERS.map((c) => (
             <aside key={c.label} className="mc-caption" data-on={cap === c} aria-hidden={cap !== c}>
-              <div className="mc-step-badge">
-                <span className="mc-step-num">0{i + 1} / 04</span>
-                <span>{c.label}</span>
-              </div>
               <h3>{c.title}</h3>
               <p>{c.text}</p>
             </aside>
@@ -245,70 +231,17 @@ function useInView<T extends HTMLElement>() {
   return [ref, seen] as const;
 }
 
-function MobileNav({
-  activeChapter,
-  onSelect,
-}: {
-  activeChapter: number;
-  onSelect: (index: number | "install") => void;
-}) {
-  return (
-    <nav className="mc-mobile-nav" aria-label="Navigation des étapes du logiciel">
-      <div className="mc-mobile-nav-track">
-        {CHAPTERS.map((c, i) => (
-          <button
-            key={c.label}
-            type="button"
-            className={`mc-mobile-pill ${activeChapter === i ? "is-active" : ""}`}
-            onClick={() => onSelect(i)}
-          >
-            <span className="mc-mobile-pill-num">0{i + 1}</span>
-            {c.label}
-          </button>
-        ))}
-        <button
-          type="button"
-          className={`mc-mobile-pill ${activeChapter === 4 ? "is-active" : ""}`}
-          onClick={() => onSelect("install")}
-        >
-          Télécharger
-        </button>
-      </div>
-    </nav>
-  );
-}
-
-function StackSection({
-  i,
-  staticMode,
-  onNext,
-}: {
-  i: number;
-  staticMode: boolean;
-  onNext: (target: number | "install") => void;
-}) {
+function StackSection({ i, staticMode }: { i: number; staticMode: boolean }) {
   const [ref, seen] = useInView<HTMLElement>();
   const c = CHAPTERS[i]!;
-  const nextTarget = i + 1 < CHAPTERS.length ? i + 1 : "install";
-  const nextLabel = i + 1 < CHAPTERS.length ? `Étape suivante : ${CHAPTERS[i + 1]!.label} ↓` : "Installer l'application ↓";
-
   return (
-    <section ref={ref} id={`chapter-${i}`} className="mc-stack-sec">
+    <section ref={ref} className="mc-stack-sec">
       <div className="mc-caption mc-caption--static">
-        <div className="mc-step-badge">
-          <span className="mc-step-num">0{i + 1} / 04</span>
-          <span>{c.label}</span>
-        </div>
         <h3>{c.title}</h3>
         <p>{c.text}</p>
       </div>
       <div className="mc-device">
         <AppWindow fluid only={i} screen={seen ? i : -1} staticMode={staticMode} />
-      </div>
-      <div className="mc-next-step-wrap">
-        <button type="button" className="mc-next-btn" onClick={() => onNext(nextTarget)}>
-          {nextLabel}
-        </button>
       </div>
     </section>
   );
@@ -317,35 +250,6 @@ function StackSection({
 function StackTour({ staticMode }: { staticMode: boolean }) {
   const [ref, seen] = useInView<HTMLElement>();
   const [prog, setProg] = useState(staticMode ? 1 : 0);
-  const barRef = useRef<HTMLSpanElement>(null);
-  const [activeChapter, setActiveChapter] = useState(0);
-
-  // Smooth scroll progress on mobile fallback
-  useEffect(() => {
-    const onScroll = () => {
-      const p = scrollP();
-      if (barRef.current) barRef.current.style.transform = `scaleX(${p})`;
-
-      // Calculate which chapter is in viewport
-      const installEl = document.getElementById("install-section");
-      if (installEl && installEl.getBoundingClientRect().top < window.innerHeight * 0.6) {
-        setActiveChapter(4);
-        return;
-      }
-      for (let i = CHAPTERS.length - 1; i >= 0; i--) {
-        const el = document.getElementById(`chapter-${i}`);
-        if (el && el.getBoundingClientRect().top < window.innerHeight * 0.5) {
-          setActiveChapter(i);
-          return;
-        }
-      }
-      setActiveChapter(0);
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   useEffect(() => {
     if (staticMode || !seen) return;
@@ -360,33 +264,18 @@ function StackTour({ staticMode }: { staticMode: boolean }) {
     return () => cancelAnimationFrame(raf);
   }, [seen, staticMode]);
 
-  const scrollToTarget = (target: number | "install") => {
-    const el = target === "install"
-      ? document.getElementById("install-section")
-      : document.getElementById(`chapter-${target}`);
-    if (el) {
-      const top = el.getBoundingClientRect().top + window.scrollY - 116;
-      window.scrollTo({ top, behavior: staticMode ? "auto" : "smooth" });
-    }
-  };
-
   return (
     <div className="mc-page mc-stack">
-      <TopBar barRef={barRef} />
-      <MobileNav activeChapter={activeChapter} onSelect={scrollToTarget} />
+      <TopBar />
       <section className="mc-stack-hero">
-        <Hero onEnter={() => scrollToTarget(0)} />
+        <Hero onEnter={() => document.getElementById("tour")?.scrollIntoView({ behavior: staticMode ? "auto" : "smooth" })} />
       </section>
       <div id="tour">
         {CHAPTERS.map((_, i) => (
-          <StackSection key={i} i={i} staticMode={staticMode} onNext={scrollToTarget} />
+          <StackSection key={i} i={i} staticMode={staticMode} />
         ))}
       </div>
-      <section ref={ref} id="install-section" className="mc-stack-sec mc-stack-install">
-        <div className="mc-step-badge" style={{ marginBottom: "20px" }}>
-          <span className="mc-step-num">05</span>
-          <span>Téléchargement & Installation</span>
-        </div>
+      <section ref={ref} className="mc-stack-sec mc-stack-install">
         <InstallCard progress={prog} done={prog >= 1} />
       </section>
     </div>

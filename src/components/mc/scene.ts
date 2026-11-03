@@ -105,9 +105,9 @@ export function createScene(stage: HTMLElement, windowEl: HTMLElement, getTarget
     const isMobile = vw < 820 || vh > vw;
     const D = vh / 2 / TAN;
 
-    const s0 = isMobile ? (0.86 * vw) / W : (0.46 * vw) / W;
+    const s0 = isMobile ? (0.92 * vw) / W : (0.46 * vw) / W;
     const sCover = isMobile
-      ? Math.min((0.95 * vw) / W, (0.48 * vh) / H)
+      ? (0.98 * vw) / W
       : Math.max(vw / W, vh / H) * 1.04;
 
     const fly = smoothstep(0.12, 0.3, p);
@@ -118,7 +118,7 @@ export function createScene(stage: HTMLElement, windowEl: HTMLElement, getTarget
     const free = 1 - 0.8 * fly;
     const posX = isMobile ? 0 : lerp((0.21 * vw) / s0, 0, fly);
     const posY = isMobile
-      ? lerp((-0.18 * vh) / s0, (0.11 * vh) / sCover, fly)
+      ? lerp((-0.17 * vh) / s0, (0.05 * vh) / sCover, fly)
       : Math.sin((time / 6) * Math.PI * 2) * 6 * free;
 
     group.position.set(posX, posY, 0);
