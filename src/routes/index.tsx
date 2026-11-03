@@ -141,7 +141,7 @@ function useInView<T extends HTMLElement>() {
   const ref = useRef<T>(null);
   const [seen, setSeen] = useState(false);
   useEffect(() => {
-    const io = new IntersectionObserver(([e]) => setSeen(e.isIntersecting), { threshold: 0.35 });
+    const io = new IntersectionObserver(([e]) => setSeen(!!e?.isIntersecting), { threshold: 0.35 });
     if (ref.current) io.observe(ref.current);
     return () => io.disconnect();
   }, []);
@@ -150,7 +150,7 @@ function useInView<T extends HTMLElement>() {
 
 function StackSection({ i, staticMode }: { i: number; staticMode: boolean }) {
   const [ref, seen] = useInView<HTMLElement>();
-  const c = CHAPTERS[i];
+  const c = CHAPTERS[i]!;
   return (
     <section ref={ref} className="mc-stack-sec">
       <div className="mc-caption mc-caption--static"><h3>{c.title}</h3><p>{c.text}</p></div>
