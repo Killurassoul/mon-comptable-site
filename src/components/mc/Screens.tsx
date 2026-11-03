@@ -131,18 +131,18 @@ const ROWS = [
 ];
 const CH = 32;
 const PAUSE = 300;
-const STARTS = ROWS.reduce<number[]>((a, r, i) => [...a, i ? a[i - 1] + ROWS[i - 1].l.length * CH + PAUSE : 300], []);
-const ROWS_END = STARTS[ROWS.length - 1] + ROWS[ROWS.length - 1].l.length * CH + 200;
+const STARTS = ROWS.reduce<number[]>((a, r, i) => [...a, i ? a[i - 1]! + ROWS[i - 1]!.l.length * CH + PAUSE : 300], []);
+const ROWS_END = STARTS[ROWS.length - 1]! + ROWS[ROWS.length - 1]!.l.length * CH + 200;
 
 function Journal({ active, staticMode }: ScreenProps) {
   const t = useTicker(active, staticMode, ROWS_END);
   let de = 0;
   let cr = 0;
   const shown = ROWS.map((r, i) => {
-    const chars = Math.floor((t - STARTS[i]) / CH);
+    const chars = Math.floor((t - STARTS[i]!) / CH);
     const done = chars >= r.l.length;
     if (done) { de += r.de; cr += r.cr; }
-    return { ...r, vis: t >= STARTS[i], txt: r.l.slice(0, Math.max(0, chars)), done };
+    return { ...r, vis: t >= STARTS[i]!, txt: r.l.slice(0, Math.max(0, chars)), done };
   });
   const ok = de === cr && de > 0;
   return (
@@ -300,7 +300,7 @@ export function AppWindow({
               {SCREENS.map((S, i) => <div className="mc-slot" key={i}><S active={screen === i} staticMode={staticMode} /></div>)}
             </div>
           ) : (
-            (() => { const S = SCREENS[only]; return <S active={screen === only} staticMode={staticMode} />; })()
+            (() => { const S = SCREENS[only]!; return <S active={screen === only} staticMode={staticMode} />; })()
           )}
         </main>
       </div>

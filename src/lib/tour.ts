@@ -50,13 +50,13 @@ export const smoothstep = (a: number, b: number, v: number) => {
 
 /** Chapter index for scroll value p: -1 before the tour, 0..3 during and after. */
 export function chapterAt(p: number): number {
-  if (p < CHAPTERS[0].start) return -1;
-  for (let i = 0; i < CHAPTERS.length; i++) if (p < CHAPTERS[i].end) return i;
+  if (p < CHAPTERS[0]!.start) return -1;
+  for (let i = 0; i < CHAPTERS.length; i++) if (p < CHAPTERS[i]!.end) return i;
   return CHAPTERS.length - 1;
 }
 
 /** Scroll value to jump to when a sidebar item is clicked. */
-export const chapterTarget = (i: number) => (CHAPTERS[i].start + CHAPTERS[i].end) / 2;
+export const chapterTarget = (i: number) => (CHAPTERS[i]!.start + CHAPTERS[i]!.end) / 2;
 
 /** FCFA amounts with space-separated thousands. */
 export function fcfa(n: number): string {
