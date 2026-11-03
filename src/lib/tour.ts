@@ -3,7 +3,7 @@ export const CONFIG = {
   DOWNLOAD_URL: "https://example.com/MonComptable-Setup.exe",
   VERSION: "2.4.0",
   FILE_SIZE: "86 Mo",
-  WHATSAPP: "+221 77 762 11 43",
+WHATSAPP: "+221 77 762 11 43",
   EMAIL: "rassoulgye@gmail.com",
 };
 
