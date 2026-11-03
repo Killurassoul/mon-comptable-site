@@ -1,6 +1,6 @@
 // Single config object for the download page.
 export const CONFIG = {
-  DOWNLOAD_URL: "/MonComptable-Setup-v3.2.0.exe",
+  DOWNLOAD_URL: import.meta.env["VITE_DOWNLOAD_URL"] || "/MonComptable-Setup-v3.2.0.exe",
   VERSION: "3.2.0",
   FILE_SIZE: "122 Mo",
   WHATSAPP: "+221 77 762 11 43",
