@@ -79,6 +79,7 @@ export function createScene(stage: HTMLElement, windowEl: HTMLElement, getTarget
   };
   const onLeave = () => { pointerIn = false; pt.set(0, 0); windowEl.style.setProperty("--go", "0"); };
   window.addEventListener("pointermove", onMove);
+  window.addEventListener("pointerup", onLeave);
   document.documentElement.addEventListener("pointerleave", onLeave);
 
   const resize = () => {
@@ -101,19 +102,29 @@ export function createScene(stage: HTMLElement, windowEl: HTMLElement, getTarget
     ps.lerp(pt, 1 - Math.exp(-dt / 0.3));
 
     const vw = stage.clientWidth, vh = stage.clientHeight;
+    const isMobile = vw < 820 || vh > vw;
     const D = vh / 2 / TAN;
-    const s0 = (0.46 * vw) / W;
-    const sCover = Math.max(vw / W, vh / H) * 1.04;
+
+    const s0 = isMobile ? (0.86 * vw) / W : (0.46 * vw) / W;
+    const sCover = isMobile
+      ? Math.min((0.95 * vw) / W, (0.48 * vh) / H)
+      : Math.max(vw / W, vh / H) * 1.04;
+
     const fly = smoothstep(0.12, 0.3, p);
     const out = smoothstep(0.9, 0.95, p);
     const dStart = D / s0, dFill = D / sCover;
-    camera.position.set(0, 0, lerp(lerp(dStart, dFill, fly), dStart * 1.8, out));
+    camera.position.set(0, 0, lerp(lerp(dStart, dFill, fly), dStart * (isMobile ? 1.4 : 1.8), out));
 
     const free = 1 - 0.8 * fly;
-    group.position.set(lerp((0.21 * vw) / s0, 0, fly), Math.sin((time / 6) * Math.PI * 2) * 6 * free, 0);
+    const posX = isMobile ? 0 : lerp((0.21 * vw) / s0, 0, fly);
+    const posY = isMobile
+      ? lerp((-0.18 * vh) / s0, (0.11 * vh) / sCover, fly)
+      : Math.sin((time / 6) * Math.PI * 2) * 6 * free;
+
+    group.position.set(posX, posY, 0);
     group.rotation.set(
-      deg(lerp(6, 0, fly) - ps.y * 3 * free),
-      deg(lerp(-16, 0, fly) + Math.sin((time / 6) * Math.PI * 2 + 1) * 0.6 * free + ps.x * 4 * free),
+      deg((isMobile ? lerp(8, 0, fly) : lerp(6, 0, fly)) - ps.y * (isMobile ? 2 : 3) * free),
+      deg((isMobile ? lerp(-10, 0, fly) : lerp(-16, 0, fly)) + Math.sin((time / 6) * Math.PI * 2 + 1) * 0.6 * free + ps.x * (isMobile ? 2 : 4) * free),
       0,
     );
     cssGroup.position.copy(group.position);
@@ -148,6 +159,7 @@ export function createScene(stage: HTMLElement, windowEl: HTMLElement, getTarget
   return () => {
     cancelAnimationFrame(raf);
     window.removeEventListener("pointermove", onMove);
+    window.removeEventListener("pointerup", onLeave);
     document.documentElement.removeEventListener("pointerleave", onLeave);
     window.removeEventListener("resize", resize);
     gl.dispose();

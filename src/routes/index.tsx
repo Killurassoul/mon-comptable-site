@@ -28,7 +28,6 @@ function detectMode(): Mode {
   const c = document.createElement("canvas");
   const webgl = !!(c.getContext("webgl2") || c.getContext("webgl"));
   if (!webgl) return "static";
-  if (window.innerWidth < 820 || window.innerHeight > window.innerWidth) return "stack";
   return "three";
 }
 
@@ -85,6 +84,7 @@ function ThreeTour() {
   const installWrapRef = useRef<HTMLDivElement>(null);
   const installBarRef = useRef<HTMLSpanElement>(null);
   const lenisRef = useRef<Lenis | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   const [host] = useState(() => {
     const d = document.createElement("div");
@@ -98,7 +98,14 @@ function ThreeTour() {
   const doneRef = useRef(false);
   const instVisRef = useRef(false);
 
-  // Lenis smooth scrolling for desktop
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 820 || window.innerHeight > window.innerWidth);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  // Lenis smooth scrolling
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const lenis = new Lenis({
@@ -109,6 +116,7 @@ function ThreeTour() {
       smoothWheel: true,
       wheelMultiplier: 1.0,
       touchMultiplier: 1.2,
+      syncTouch: false,
     });
     lenisRef.current = lenis;
 
@@ -140,7 +148,7 @@ function ThreeTour() {
       if (h) {
         const o = 1 - smoothstep(0.1, 0.18, p);
         h.style.opacity = String(o);
-        h.style.transform = `translateY(calc(-50% - ${(1 - o) * 40}px))`;
+        h.style.transform = `translateY(calc(var(--hero-y, -50%) - ${(1 - o) * 30}px))`;
         h.style.visibility = o < 0.01 ? "hidden" : "visible";
       }
       const c = chapterAt(p);
@@ -179,9 +187,9 @@ function ThreeTour() {
     };
   }, [host]);
 
-  const go = (i: number) => {
+  const go = (i: number | "install") => {
     const max = document.documentElement.scrollHeight - window.innerHeight;
-    const targetY = chapterTarget(i) * max;
+    const targetY = i === "install" ? 0.94 * max : chapterTarget(i) * max;
     if (lenisRef.current) {
       lenisRef.current.scrollTo(targetY, { duration: 1.4 });
     } else {
@@ -191,17 +199,23 @@ function ThreeTour() {
 
   const screen = Math.max(0, chapter);
   const cap = chapter >= 0 && !installVisible ? CHAPTERS[chapter] : null;
+  const activeNav = installVisible ? 4 : (chapter >= 0 ? chapter : -1);
 
   return (
     <div className="mc-page">
       <TopBar barRef={barRef} />
+      {isMobile && <MobileNav activeChapter={activeNav} onSelect={go} />}
       <div className="mc-scroll">
         <div ref={stageRef} className="mc-stage">
           <div ref={heroRef} className="mc-hero">
             <Hero onEnter={() => go(0)} />
           </div>
-          {CHAPTERS.map((c) => (
+          {CHAPTERS.map((c, i) => (
             <aside key={c.label} className="mc-caption" data-on={cap === c} aria-hidden={cap !== c}>
+              <div className="mc-step-badge">
+                <span className="mc-step-num">0{i + 1} / 04</span>
+                <span>{c.label}</span>
+              </div>
               <h3>{c.title}</h3>
               <p>{c.text}</p>
             </aside>
@@ -215,7 +229,7 @@ function ThreeTour() {
           </div>
         </div>
       </div>
-      {createPortal(<AppWindow screen={screen} onNavigate={go} />, host)}
+      {createPortal(<AppWindow screen={screen} onNavigate={(i) => go(i)} />, host)}
     </div>
   );
 }
@@ -306,7 +320,7 @@ function StackTour({ staticMode }: { staticMode: boolean }) {
   const barRef = useRef<HTMLSpanElement>(null);
   const [activeChapter, setActiveChapter] = useState(0);
 
-  // Smooth scroll progress on mobile
+  // Smooth scroll progress on mobile fallback
   useEffect(() => {
     const onScroll = () => {
       const p = scrollP();

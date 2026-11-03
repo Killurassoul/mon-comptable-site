@@ -157,7 +157,7 @@ html, body { font-family: var(--font); font-size: 16px; letter-spacing: normal; 
 .mc-stage { position: sticky; top: 0; height: 100vh; overflow: hidden; background: radial-gradient(55% 60% at 66% 52%, color-mix(in oklab, var(--accent-brand) 6%, transparent), transparent 70%), var(--bg); }
 .mc-gl, .mc-css { position: absolute !important; inset: 0; }
 .mc-css { z-index: 1; }
-.mc-hero { position: absolute; z-index: 3; left: clamp(24px, 6vw, 96px); top: 52%; transform: translateY(-50%); max-width: min(40vw, 520px); }
+.mc-hero { position: absolute; z-index: 3; left: clamp(24px, 6vw, 96px); top: 50%; --hero-y: -50%; transform: translateY(var(--hero-y)); max-width: min(40vw, 520px); }
 .mc-eyebrow { color: color-mix(in oklab, var(--accent-brand) 45%, white); font-weight: 600; font-size: 16px; margin-bottom: 14px; }
 .mc-title { font-size: clamp(44px, 5.4vw, 80px); line-height: 1.02; font-weight: 700; }
 .mc-lead { margin-top: 18px; font-size: 20px; color: var(--text-on-dark-muted); line-height: 1.5; }
@@ -315,7 +315,9 @@ html { scroll-behavior: smooth; }
 
 /* Mobile Sticky Tour Navigation ("ne pas se perdre") */
 .mc-mobile-nav {
-  position: sticky;
+  position: fixed;
+  left: 0;
+  right: 0;
   top: 64px;
   z-index: 18;
   background: color-mix(in oklab, var(--bg) 90%, transparent);
@@ -420,3 +422,76 @@ html { scroll-behavior: smooth; }
   transform: translateY(-1px);
 }
 
+
+/* 3D stage responsive styles for mobile */
+@media (max-width: 820px), (max-aspect-ratio: 1/1) {
+  .mc-hero {
+    left: 16px;
+    right: 16px;
+    top: 120px;
+    --hero-y: 0%;
+    transform: translateY(var(--hero-y));
+    max-width: calc(100vw - 32px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .mc-hero .mc-eyebrow {
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+  .mc-hero .mc-title {
+    font-size: clamp(32px, 8.5vw, 44px);
+    line-height: 1.05;
+  }
+  .mc-hero .mc-lead {
+    margin-top: 10px;
+    font-size: 15px;
+    line-height: 1.45;
+    max-width: 330px;
+  }
+  .mc-hero .mc-actions {
+    margin-top: 18px;
+    justify-content: center;
+    gap: 12px;
+  }
+  .mc-hero .mc-btn--lg {
+    height: 44px;
+    padding: 0 18px;
+    font-size: 14px;
+  }
+
+  .mc-caption {
+    left: 14px;
+    right: 14px;
+    bottom: 20px;
+    width: auto;
+    max-width: calc(100vw - 28px);
+    margin: 0 auto;
+    padding: 14px 16px;
+    border-radius: 14px;
+  }
+  .mc-caption h3 {
+    font-size: 16px;
+    line-height: 1.25;
+  }
+  .mc-caption p {
+    font-size: 13px;
+    line-height: 1.4;
+    margin-top: 4px;
+  }
+
+  .mc-install-wrap {
+    top: 50%;
+    width: calc(100vw - 28px);
+    max-width: 440px;
+  }
+  .mc-install {
+    width: 100%;
+    max-width: 100%;
+  }
+  .mc-install-body {
+    padding: 24px 16px;
+  }
+}
