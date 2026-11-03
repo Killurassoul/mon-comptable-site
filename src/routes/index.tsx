@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AppWindow, InstallCard, Logo } from "@/components/mc/Screens";
+import { createScene } from "@/components/mc/scene";
 import { CHAPTERS, CONFIG, chapterAt, chapterTarget, smoothstep } from "@/lib/tour";
 
 export const Route = createFileRoute("/")({
@@ -183,4 +184,3 @@ function StackTour({ staticMode }: { staticMode: boolean }) {
   );
 }
 
-import { createScene } from "@/components/mc/scene";
