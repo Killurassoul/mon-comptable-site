@@ -97,7 +97,7 @@ export function createScene(stage: HTMLElement, windowEl: HTMLElement, getTarget
     raf = requestAnimationFrame(frame);
     const dt = Math.min(clock.getDelta(), 0.05);
     time += dt;
-    p += (getTarget() - p) * (1 - Math.exp(-dt / 0.18));
+    p += (getTarget() - p) * (1 - Math.exp(-dt / 0.09));
     ps.lerp(pt, 1 - Math.exp(-dt / 0.3));
 
     const vw = stage.clientWidth, vh = stage.clientHeight;

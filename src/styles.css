@@ -300,3 +300,123 @@ html, body { font-family: var(--font); font-size: 16px; letter-spacing: normal; 
 @media (min-width: 1000px) { .mc-win--fluid .mc-side { display: flex; } }
 .mc-win--fluid .mc-screen { height: auto; min-height: 520px; }
 .mc-stack-install { display: grid; place-items: center; padding-bottom: 80px; }
+
+/* Lenis smooth scrolling support */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: clip; }
+.lenis.lenis-smooth iframe { pointer-events: none; }
+
+/* Smooth scrolling baseline */
+html { scroll-behavior: smooth; }
+.mc-scroll { will-change: scroll-position; }
+.mc-top-progress { will-change: transform; }
+
+/* Mobile Sticky Tour Navigation ("ne pas se perdre") */
+.mc-mobile-nav {
+  position: sticky;
+  top: 64px;
+  z-index: 18;
+  background: color-mix(in oklab, var(--bg) 90%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid oklch(1 0 0 / 8%);
+  padding: 10px 14px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.mc-mobile-nav::-webkit-scrollbar { display: none; }
+
+.mc-mobile-nav-track {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  margin: 0 auto;
+}
+
+.mc-mobile-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-on-dark-muted);
+  background: oklch(1 0 0 / 6%);
+  border: 1px solid oklch(1 0 0 / 10%);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.mc-mobile-pill:hover {
+  color: var(--text-on-dark);
+  background: oklch(1 0 0 / 12%);
+}
+.mc-mobile-pill.is-active {
+  color: oklch(1 0 0);
+  background: var(--accent-brand);
+  border-color: var(--accent-brand);
+  box-shadow: 0 4px 14px -3px color-mix(in oklab, var(--accent-brand) 70%, transparent);
+}
+.mc-mobile-pill-num {
+  font-size: 11px;
+  opacity: 0.85;
+  padding: 1px 6px;
+  background: oklch(0 0 0 / 25%);
+  border-radius: 999px;
+}
+
+/* Step badges for clear orientation on mobile */
+.mc-step-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent-brand);
+  background: var(--accent-soft);
+  padding: 4px 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+.mc-step-num {
+  background: var(--accent-brand);
+  color: var(--primary-foreground);
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Next step prompt on mobile */
+.mc-next-step-wrap {
+  margin-top: 18px;
+  display: flex;
+  justify-content: center;
+}
+.mc-next-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-on-dark);
+  background: oklch(1 0 0 / 7%);
+  border: 1px solid oklch(1 0 0 / 14%);
+  border-radius: 10px;
+  padding: 10px 20px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+.mc-next-btn:hover {
+  background: oklch(1 0 0 / 15%);
+  border-color: var(--accent-brand);
+  transform: translateY(-1px);
+}
+

@@ -309,7 +309,7 @@ export function AppWindow({
   );
 }
 
-export function InstallCard({ progress, done }: { progress: number; done: boolean }) {
+export function InstallCard({ progress, done, barRef }: { progress?: number; done: boolean; barRef?: React.RefObject<HTMLSpanElement | null> }) {
   return (
     <div className="mc-install" data-done={done}>
       <div className="mc-titlebar"><span className="mc-dots"><i /><i /><i /></span><span>Installation de Mon Comptable</span></div>
@@ -319,13 +319,13 @@ export function InstallCard({ progress, done }: { progress: number; done: boolea
           <>
             <b>Installation de Mon Comptable</b>
             <small>Copie des fichiers sur votre ordinateur</small>
-            <div className="mc-bar"><span style={{ transform: `scaleX(${progress})` }} /></div>
+            <div className="mc-bar"><span ref={barRef} style={{ transform: `scaleX(${progress ?? 0})` }} /></div>
           </>
         ) : (
           <>
             <b>Mon Comptable pour Windows</b>
             <small>Version {CONFIG.VERSION} · {CONFIG.FILE_SIZE} · fonctionne sans internet</small>
-            <a className="mc-btn mc-btn--accent mc-btn--lg" href={CONFIG.DOWNLOAD_URL}>Télécharger pour Windows</a>
+            <a className="mc-btn mc-btn--accent mc-btn--lg" href={CONFIG.DOWNLOAD_URL} download="MonComptable-Setup-v3.2.0.exe">Télécharger pour Windows</a>
             <p className="mc-help">
               Windows affiche un avertissement ? Cliquez sur « Informations complémentaires », puis « Exécuter quand même ».
             </p>
