@@ -4,12 +4,12 @@ export const CONFIG = {
   // fichier) : ils sont publiés en release sur un dépôt public dédié.
   DOWNLOAD_URL:
     import.meta.env["VITE_DOWNLOAD_URL"] ||
-    "https://github.com/Killurassoul/mon-comptable-telechargements/releases/download/v3.2.0/MonComptable-Setup-v3.2.0.exe",
+    "https://github.com/Killurassoul/mon-comptable-telechargements/releases/download/v3.3.0/MonComptable-Setup-v3.3.0.exe",
   RELEASES_URL: "https://github.com/Killurassoul/mon-comptable-telechargements/releases",
-  VERSION: "3.2.0",
+  VERSION: "3.3.0",
   FILE_SIZE: "122 Mo",
-  FILE_BYTES: 127909877,
-  SHA256: "6bf64fd125c681a35db7128de97765d114ebb1ee37a67bdcb4fad97ba5c2cffb",
+  FILE_BYTES: 127928140,
+  SHA256: "6b2efa84d9afae8bcb0365ff197e3c757887775664805962332f387649893355",
   WHATSAPP: "+221 77 762 11 43",
   EMAIL: "rassoulgye@gmail.com",
 };
