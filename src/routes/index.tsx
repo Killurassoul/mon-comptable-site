@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Lenis from "lenis";
 import { AppWindow, InstallCard, Logo } from "@/components/mc/Screens";
+import { SiteExtras } from "@/components/mc/Extras";
 import { createScene } from "@/components/mc/scene";
 import { CHAPTERS, CONFIG, chapterAt, chapterTarget, smoothstep } from "@/lib/tour";
 
@@ -11,7 +12,7 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Mon Comptable · Logiciel de comptabilité hors ligne" },
-      { name: "description", content: "La comptabilité de votre entreprise, sans internet. Tableau de bord, écritures, paie et assistant pour PME, cabinets et ONG." },
+      { name: "description", content: "Comptabilité, trésorerie, facturation et paie hors ligne pour les PME : registre inaltérable, agent comptable intégré et rapports de gestion. Windows 10 et 11." },
       { property: "og:title", content: "Mon Comptable · Logiciel de comptabilité hors ligne" },
       { property: "og:description", content: "La comptabilité de votre entreprise, sans internet." },
       { property: "og:type", content: "website" },
@@ -40,7 +41,13 @@ function TopBar({ barRef }: { barRef?: React.RefObject<HTMLSpanElement | null> }
   return (
     <header className="mc-top">
       <span className="mc-wordmark"><Logo size={28} /> Mon Comptable</span>
-      <a className="mc-btn mc-btn--accent" href={CONFIG.DOWNLOAD_URL} download="MonComptable-Setup-v3.2.0.exe">Télécharger</a>
+      <nav className="mc-top-nav" aria-label="Sections du site">
+        <a href="#fonctionnalites">Fonctionnalités</a>
+        <a href="#tracabilite">Traçabilité</a>
+        <a href="#installation">Installation</a>
+        <a href="#faq">Questions</a>
+      </nav>
+      <a className="mc-btn mc-btn--accent" href={CONFIG.DOWNLOAD_URL} rel="noopener">Télécharger</a>
       {barRef && <span ref={barRef} className="mc-top-progress" />}
     </header>
   );
@@ -53,7 +60,7 @@ function Hero({ onEnter }: { onEnter: () => void }) {
       <h1 className="mc-title">Mon Comptable</h1>
       <p className="mc-lead">La comptabilité de votre entreprise, sans internet.</p>
       <div className="mc-actions">
-        <a className="mc-btn mc-btn--accent mc-btn--lg" href={CONFIG.DOWNLOAD_URL} download="MonComptable-Setup-v3.2.0.exe">Télécharger pour Windows</a>
+        <a className="mc-btn mc-btn--accent mc-btn--lg" href={CONFIG.DOWNLOAD_URL} rel="noopener">Télécharger pour Windows</a>
         <button type="button" className="mc-link" onClick={onEnter}>Entrer dans l'application</button>
       </div>
     </>
@@ -216,6 +223,7 @@ function ThreeTour() {
         </div>
       </div>
       {createPortal(<AppWindow screen={screen} onNavigate={(i) => go(i)} />, host)}
+      <SiteExtras />
     </div>
   );
 }
@@ -278,6 +286,7 @@ function StackTour({ staticMode }: { staticMode: boolean }) {
       <section ref={ref} className="mc-stack-sec mc-stack-install">
         <InstallCard progress={prog} done={prog >= 1} />
       </section>
+      <SiteExtras />
     </div>
   );
 }

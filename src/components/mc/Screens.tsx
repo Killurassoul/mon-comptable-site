@@ -325,7 +325,7 @@ export function InstallCard({ progress, done, barRef }: { progress?: number; don
           <>
             <b>Mon Comptable pour Windows</b>
             <small>Version {CONFIG.VERSION} · {CONFIG.FILE_SIZE} · fonctionne sans internet</small>
-            <a className="mc-btn mc-btn--accent mc-btn--lg" href={CONFIG.DOWNLOAD_URL} download="MonComptable-Setup-v3.2.0.exe">Télécharger pour Windows</a>
+            <a className="mc-btn mc-btn--accent mc-btn--lg" href={CONFIG.DOWNLOAD_URL} rel="noopener">Télécharger pour Windows</a>
             <p className="mc-help">
               Windows affiche un avertissement ? Cliquez sur « Informations complémentaires », puis « Exécuter quand même ».
             </p>

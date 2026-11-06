@@ -1,8 +1,15 @@
 // Single config object for the download page.
 export const CONFIG = {
-  DOWNLOAD_URL: import.meta.env["VITE_DOWNLOAD_URL"] || "/MonComptable-Setup-v3.2.0.exe",
+  // Les binaires sont trop lourds pour l'hébergement Vercel (limite de 100 Mo par
+  // fichier) : ils sont publiés en release sur un dépôt public dédié.
+  DOWNLOAD_URL:
+    import.meta.env["VITE_DOWNLOAD_URL"] ||
+    "https://github.com/Killurassoul/mon-comptable-telechargements/releases/download/v3.2.0/MonComptable-Setup-v3.2.0.exe",
+  RELEASES_URL: "https://github.com/Killurassoul/mon-comptable-telechargements/releases",
   VERSION: "3.2.0",
   FILE_SIZE: "122 Mo",
+  FILE_BYTES: 127909877,
+  SHA256: "6bf64fd125c681a35db7128de97765d114ebb1ee37a67bdcb4fad97ba5c2cffb",
   WHATSAPP: "+221 77 762 11 43",
   EMAIL: "rassoulgye@gmail.com",
 };
