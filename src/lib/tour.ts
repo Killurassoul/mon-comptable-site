@@ -2,17 +2,26 @@
 export const CONFIG = {
   // Les binaires sont trop lourds pour l'hébergement Vercel (limite de 100 Mo par
   // fichier) : ils sont publiés en release sur un dépôt public dédié.
+  // URL stable : pointe toujours vers l'asset de la dernière release publiée.
   DOWNLOAD_URL:
     import.meta.env["VITE_DOWNLOAD_URL"] ||
-    "https://github.com/Killurassoul/mon-comptable-telechargements/releases/download/v3.3.0/MonComptable-Setup-v3.3.0.exe",
+    "https://github.com/Killurassoul/mon-comptable-telechargements/releases/latest/download/MonComptable-Setup.exe",
   RELEASES_URL: "https://github.com/Killurassoul/mon-comptable-telechargements/releases",
-  VERSION: "3.3.0",
+  VERSION: "3.4.0",
+  RELEASED_AT: "2026-11-08",
   FILE_SIZE: "122 Mo",
-  FILE_BYTES: 127928140,
-  SHA256: "6b2efa84d9afae8bcb0365ff197e3c757887775664805962332f387649893355",
+  FILE_BYTES: 127931331,
+  SHA256: "0565c26d44cbc0de23141b7f0e3048404f5b112e65a6f72f7f3d81da6062ee52",
   WHATSAPP: "+221 77 762 11 43",
   EMAIL: "rassoulgye@gmail.com",
 };
+
+/** Date de publication de l'installeur, en français (ex. « 8 novembre 2026 »). */
+export const RELEASE_DATE_FR = new Intl.DateTimeFormat("fr-FR", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+}).format(new Date(`${CONFIG.RELEASED_AT}T12:00:00`));
 
 // Hex copies of the brand tokens for WebGL (CSS uses the oklch tokens in styles.css).
 export const BRAND_HEX = { accent: "#7c3aed", sidebar: "#0f172a" };

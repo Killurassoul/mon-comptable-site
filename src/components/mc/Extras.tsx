@@ -19,7 +19,7 @@ import {
   Check,
 } from "lucide-react";
 
-import { CONFIG } from "@/lib/tour";
+import { CONFIG, RELEASE_DATE_FR } from "@/lib/tour";
 import { FEATURES } from "@/lib/features";
 import { FeaturesRibbon } from "@/components/mc/FeaturesRibbon";
 
@@ -198,7 +198,7 @@ export function SiteExtras() {
         <SectionHead
           eyebrow="Installation"
           title="Trois étapes, aucune dépendance."
-          lead={`Version ${CONFIG.VERSION} · ${CONFIG.FILE_SIZE} · Windows 10 et 11 en 64 bits.`}
+          lead={`Version ${CONFIG.VERSION} · ${CONFIG.FILE_SIZE} · publiée le ${RELEASE_DATE_FR} · Windows 10 et 11 en 64 bits.`}
         />
         <div className="mc-steps">
           {STEPS.map((step) => (
@@ -213,8 +213,8 @@ export function SiteExtras() {
           <div>
             <b>Mon Comptable pour Windows</b>
             <p>
-              Version {CONFIG.VERSION} · {CONFIG.FILE_SIZE} · exécutable signé hors ligne. Empreinte
-              SHA-256 :
+              Version {CONFIG.VERSION} · {CONFIG.FILE_SIZE} · publiée le {RELEASE_DATE_FR} · exécutable
+              signé hors ligne. Empreinte SHA-256 :
             </p>
             <code className="mc-sha">{CONFIG.SHA256}</code>
           </div>
