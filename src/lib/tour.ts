@@ -7,11 +7,11 @@ export const CONFIG = {
     import.meta.env["VITE_DOWNLOAD_URL"] ||
     "https://github.com/Killurassoul/mon-comptable-telechargements/releases/latest/download/MonComptable-Setup.exe",
   RELEASES_URL: "https://github.com/Killurassoul/mon-comptable-telechargements/releases",
-  VERSION: "3.4.1",
+  VERSION: "3.4.2",
   RELEASED_AT: "2026-11-08",
   FILE_SIZE: "122 Mo",
-  FILE_BYTES: 127931801,
-  SHA256: "316ab4dbdc1c0ac4325afac84a8717fdb0290915f53098d1be945b577f450ad0",
+  FILE_BYTES: 127932911,
+  SHA256: "502e38819a37b5c30654b61c6b8bd7d9dbf5411e10585a19cf8f38b8676a5f11",
   WHATSAPP: "+221 77 762 11 43",
   EMAIL: "rassoulgye@gmail.com",
 };
