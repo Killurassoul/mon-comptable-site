@@ -524,3 +524,6 @@
 .mc-section--detail {
   padding-top: 72px;
 }
+.mc-help.mc-help--inline p { margin: 0; }
+.mc-help.mc-help--inline ol { margin: 10px 0; padding-left: 22px; list-style: decimal; display: grid; gap: 6px; }
+.mc-help.mc-help--inline code { font-size: 13px; word-break: break-all; }

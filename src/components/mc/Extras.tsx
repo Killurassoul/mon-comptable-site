@@ -213,8 +213,8 @@ export function SiteExtras() {
           <div>
             <b>Mon Comptable pour Windows</b>
             <p>
-              Version {CONFIG.VERSION} · {CONFIG.FILE_SIZE} · publiée le {RELEASE_DATE_FR} · exécutable
-              signé hors ligne. Empreinte SHA-256 :
+              Version {CONFIG.VERSION} · {CONFIG.FILE_SIZE} · publiée le {RELEASE_DATE_FR} · éditeur
+              Rassoul. Empreinte SHA-256 du fichier :
             </p>
             <code className="mc-sha">{CONFIG.SHA256}</code>
           </div>
@@ -222,11 +222,26 @@ export function SiteExtras() {
             Télécharger pour Windows <ArrowRight size={18} />
           </a>
         </div>
-        <p className="mc-help mc-help--inline">
-          Windows affiche un avertissement au premier lancement ? Cliquez sur « Informations
-          complémentaires », puis « Exécuter quand même ». Le fichier est identique à celui de la
-          version {CONFIG.VERSION}.
-        </p>
+        <div className="mc-help mc-help--inline">
+          <p>
+            <b>« Windows a protégé votre PC » ?</b> L'installeur n'est pas encore signé
+            numériquement : Windows avertit pour tout fichier récent sans signature. Ce n'est pas un
+            virus.
+          </p>
+          <ol>
+            <li>
+              Si le navigateur indique que le fichier « n'est pas fréquemment téléchargé », ouvrez
+              le menu « … » du téléchargement et choisissez « Conserver ».
+            </li>
+            <li>Lancez le fichier, puis cliquez sur « Informations complémentaires ».</li>
+            <li>Cliquez sur « Exécuter quand même » : l'installation démarre.</li>
+          </ol>
+          <p>
+            Pour vérifier que le fichier n'a pas été modifié, comparez son empreinte SHA-256
+            (PowerShell : <code>Get-FileHash MonComptable-Setup.exe</code>) avec celle affichée
+            ci-dessus.
+          </p>
+        </div>
       </section>
 
       <section id="faq" className="mc-section">
