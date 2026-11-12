@@ -1,17 +1,17 @@
 // Single config object for the download page.
 export const CONFIG = {
   // Les binaires sont trop lourds pour l'hébergement Vercel (limite de 100 Mo par
-  // fichier) : ils sont publiés en release sur un dépôt public dédié.
+  // fichier) et pour l'historique git : ils sont publiés en release GitHub de ce dépôt.
   // URL stable : pointe toujours vers l'asset de la dernière release publiée.
   DOWNLOAD_URL:
     import.meta.env["VITE_DOWNLOAD_URL"] ||
-    "https://github.com/Killurassoul/mon-comptable-telechargements/releases/latest/download/MonComptable-Setup.exe",
-  RELEASES_URL: "https://github.com/Killurassoul/mon-comptable-telechargements/releases",
-  VERSION: "3.4.3",
-  RELEASED_AT: "2026-11-08",
+    "https://github.com/Killurassoul/mon-comptable-site/releases/latest/download/MonComptable-Setup.exe",
+  RELEASES_URL: "https://github.com/Killurassoul/mon-comptable-site/releases",
+  VERSION: "3.5.0",
+  RELEASED_AT: "2026-11-12",
   FILE_SIZE: "122 Mo",
-  FILE_BYTES: 127934666,
-  SHA256: "7ed35ad709256c3b6915020c6728e9b51d79a7f8f971305b05a42fefdc8c326e",
+  FILE_BYTES: 127934126,
+  SHA256: "6be017395f6dfa20e49384d448a783a885a4472e7ce5defe0a2ef8faddd3a944",
   WHATSAPP: "+221 77 762 11 43",
   EMAIL: "rassoulgye@gmail.com",
 };
