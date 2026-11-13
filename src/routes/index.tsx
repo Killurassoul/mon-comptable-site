@@ -1,20 +1,24 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
-import Lenis from "lenis";
-import { AppWindow, InstallCard, Logo } from "@/components/mc/Screens";
-import { SiteExtras } from "@/components/mc/Extras";
-import { createScene } from "@/components/mc/scene";
-import { CHAPTERS, CONFIG, chapterAt, chapterTarget, smoothstep } from "@/lib/tour";
+import gsap from "gsap";
+import { DOWNLOAD, SCREENS, screenUrl, reducedMotion, type ViewHandle } from "@/experience/data";
+import "@/experience/experience.css";
 
 export const Route = createFileRoute("/")({
   ssr: false,
   head: () => ({
     meta: [
       { title: "Mon Comptable · Logiciel de comptabilité hors ligne" },
-      { name: "description", content: "Comptabilité, trésorerie, facturation et paie hors ligne pour les PME : registre inaltérable, agent comptable intégré et rapports de gestion. Windows 10 et 11." },
+      {
+        name: "description",
+        content:
+          "Comptabilité, facturation, paie et trésorerie hors ligne pour les PME, cabinets et ONG d'Afrique de l'Ouest. Windows 10 et 11.",
+      },
       { property: "og:title", content: "Mon Comptable · Logiciel de comptabilité hors ligne" },
-      { property: "og:description", content: "La comptabilité de votre entreprise, sans internet." },
+      {
+        property: "og:description",
+        content: "La comptabilité de votre entreprise, sans internet.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -22,271 +26,184 @@ export const Route = createFileRoute("/")({
   component: Page,
 });
 
-type Mode = "three" | "stack" | "static";
-
-function detectMode(): Mode {
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return "static";
+type View = "galerie" | "ecrans" | "telecharger";
+const VIEWS: { id: View; label: string; n: number }[] = [
+  { id: "galerie", label: "Galerie", n: 1 },
+  { id: "ecrans", label: "Écrans", n: 2 },
+  { id: "telecharger", label: "Installer", n: 3 },
+];
+const fromHash = (): View => {
+  const h = window.location.hash.replace("#", "");
+  return VIEWS.some((v) => v.id === h) ? (h as View) : "galerie";
+};
+const hasWebGL = () => {
   const c = document.createElement("canvas");
-  const webgl = !!(c.getContext("webgl2") || c.getContext("webgl"));
-  if (!webgl) return "static";
-  return "three";
-}
-
-function scrollP() {
-  const max = document.documentElement.scrollHeight - window.innerHeight;
-  return max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
-}
-
-function TopBar({ barRef }: { barRef?: React.RefObject<HTMLSpanElement | null> }) {
-  return (
-    <header className="mc-top">
-      <span className="mc-wordmark"><Logo size={28} /> Mon Comptable</span>
-      <nav className="mc-top-nav" aria-label="Sections du site">
-        <a href="#fonctionnalites">Fonctionnalités</a>
-        <a href="#tracabilite">Traçabilité</a>
-        <a href="#installation">Installation</a>
-        <a href="#faq">Questions</a>
-      </nav>
-      <a className="mc-btn mc-btn--accent" href={CONFIG.DOWNLOAD_URL} rel="noopener">Télécharger</a>
-      {barRef && <span ref={barRef} className="mc-top-progress" />}
-    </header>
-  );
-}
-
-function Hero({ onEnter }: { onEnter: () => void }) {
-  return (
-    <>
-      <p className="mc-eyebrow">Logiciel de comptabilité hors ligne</p>
-      <h1 className="mc-title">Mon Comptable</h1>
-      <p className="mc-lead">La comptabilité de votre entreprise, sans internet.</p>
-      <div className="mc-actions">
-        <a className="mc-btn mc-btn--accent mc-btn--lg" href={CONFIG.DOWNLOAD_URL} rel="noopener">Télécharger pour Windows</a>
-        <button type="button" className="mc-link" onClick={onEnter}>Entrer dans l'application</button>
-      </div>
-    </>
-  );
-}
+  return !!(c.getContext("webgl2") || c.getContext("webgl"));
+};
 
 function Page() {
-  const [mode, setMode] = useState<Mode | null>(null);
-  useEffect(() => {
-    const m = detectMode();
-    setMode(m);
-    const onResize = () => {
-      const next = detectMode();
-      setMode((cur) => (cur !== next ? next : cur));
-    };
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
-
-  if (!mode) return <div className="mc-page" />;
-  return mode === "three" ? <ThreeTour /> : <StackTour staticMode={mode === "static"} />;
+  const [webgl] = useState(hasWebGL);
+  return webgl ? <Experience /> : <Fallback />;
 }
 
-function ThreeTour() {
-  const stageRef = useRef<HTMLDivElement>(null);
-  const heroRef = useRef<HTMLDivElement>(null);
-  const barRef = useRef<HTMLSpanElement>(null);
-  const installWrapRef = useRef<HTMLDivElement>(null);
-  const installBarRef = useRef<HTMLSpanElement>(null);
-  const lenisRef = useRef<Lenis | null>(null);
+function Experience() {
+  const [view, setView] = useState<View>(fromHash);
+  const [menu, setMenu] = useState(false);
+  const roots = useRef<Partial<Record<View, HTMLElement | null>>>({});
+  const handles = useRef<Partial<Record<View, ViewHandle>>>({});
+  const current = useRef<View | null>(null);
+  const dock = useRef<HTMLElement>(null);
+  const dockShown = useRef(false);
 
-  const [host] = useState(() => {
-    const d = document.createElement("div");
-    d.className = "mc-window-host";
-    return d;
-  });
-  const [chapter, setChapter] = useState(-1);
-  const [installDone, setInstallDone] = useState(false);
-  const [installVisible, setInstallVisible] = useState(false);
-  const chapRef = useRef(-1);
-  const doneRef = useRef(false);
-  const instVisRef = useRef(false);
-
-  // Lenis smooth scrolling
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: "vertical",
-      gestureOrientation: "vertical",
-      smoothWheel: true,
-      wheelMultiplier: 1.0,
-      touchMultiplier: 1.2,
-      syncTouch: false,
-    });
-    lenisRef.current = lenis;
-
-    let rafId = 0;
-    function raf(time: number) {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
-    }
-    rafId = requestAnimationFrame(raf);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      lenis.destroy();
-      lenisRef.current = null;
-    };
-  }, []);
-
-  useEffect(() => {
-    const stage = stageRef.current!;
-    let target = scrollP();
-    const onScroll = () => {
-      target = scrollP();
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-
-    const dispose = createScene(stage, host, () => target, (p) => {
-      if (barRef.current) barRef.current.style.transform = `scaleX(${p})`;
-      const h = heroRef.current;
-      if (h) {
-        const o = 1 - smoothstep(0.1, 0.18, p);
-        h.style.opacity = String(o);
-        h.style.transform = `translateY(calc(var(--hero-y, -50%) - ${(1 - o) * 30}px))`;
-        h.style.visibility = o < 0.01 ? "hidden" : "visible";
-      }
-      const c = chapterAt(p);
-      if (c !== chapRef.current) {
-        chapRef.current = c;
-        setChapter(c);
-      }
-
-      const o = smoothstep(0.91, 0.95, p);
-      const prog = smoothstep(0.93, 0.975, p);
-      const done = p > 0.978;
-      const isVis = o >= 0.05;
-
-      const wrap = installWrapRef.current;
-      if (wrap) {
-        wrap.style.opacity = String(o);
-        wrap.style.transform = `translate(-50%, -50%) scale(${0.85 + 0.15 * o})`;
-        wrap.style.visibility = o < 0.01 ? "hidden" : "visible";
-      }
-      if (installBarRef.current) {
-        installBarRef.current.style.transform = `scaleX(${prog})`;
-      }
-      if (isVis !== instVisRef.current) {
-        instVisRef.current = isVis;
-        setInstallVisible(isVis);
-      }
-      if (done !== doneRef.current) {
-        doneRef.current = done;
-        setInstallDone(done);
-      }
-    });
-
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      dispose();
-    };
-  }, [host]);
-
-  const go = (i: number | "install") => {
-    const max = document.documentElement.scrollHeight - window.innerHeight;
-    const targetY = i === "install" ? 0.94 * max : chapterTarget(i) * max;
-    if (lenisRef.current) {
-      lenisRef.current.scrollTo(targetY, { duration: 1.4 });
-    } else {
-      window.scrollTo({ top: targetY, behavior: "smooth" });
-    }
+  const showDock = () => {
+    if (dockShown.current || !dock.current) return;
+    dockShown.current = true;
+    gsap.fromTo(
+      dock.current,
+      { y: 16, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.9,
+        ease: "expo.out",
+        onStart: () => {
+          dock.current!.style.pointerEvents = "auto";
+        },
+      },
+    );
   };
 
-  const screen = Math.max(0, chapter);
-  const cap = chapter >= 0 && !installVisible ? CHAPTERS[chapter] : null;
-
-  return (
-    <div className="mc-page">
-      <TopBar barRef={barRef} />
-      <div className="mc-scroll">
-        <div ref={stageRef} className="mc-stage">
-          <div ref={heroRef} className="mc-hero">
-            <Hero onEnter={() => go(0)} />
-          </div>
-          {CHAPTERS.map((c) => (
-            <aside key={c.label} className="mc-caption" data-on={cap === c} aria-hidden={cap !== c}>
-              <h3>{c.title}</h3>
-              <p>{c.text}</p>
-            </aside>
-          ))}
-          <div
-            ref={installWrapRef}
-            className="mc-install-wrap"
-            style={{ opacity: 0, transform: "translate(-50%, -50%) scale(0.85)", visibility: "hidden" }}
-          >
-            <InstallCard barRef={installBarRef} done={installDone} />
-          </div>
-        </div>
-      </div>
-      {createPortal(<AppWindow screen={screen} onNavigate={(i) => go(i)} />, host)}
-      <SiteExtras />
-    </div>
-  );
-}
-
-function useInView<T extends HTMLElement>() {
-  const ref = useRef<T>(null);
-  const [seen, setSeen] = useState(false);
   useEffect(() => {
-    const io = new IntersectionObserver(([e]) => setSeen(!!e?.isIntersecting), { threshold: 0.25 });
-    if (ref.current) io.observe(ref.current);
-    return () => io.disconnect();
+    const onHash = () => setView(fromHash());
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
   }, []);
-  return [ref, seen] as const;
-}
-
-function StackSection({ i, staticMode }: { i: number; staticMode: boolean }) {
-  const [ref, seen] = useInView<HTMLElement>();
-  const c = CHAPTERS[i]!;
-  return (
-    <section ref={ref} className="mc-stack-sec">
-      <div className="mc-caption mc-caption--static">
-        <h3>{c.title}</h3>
-        <p>{c.text}</p>
-      </div>
-      <div className="mc-device">
-        <AppWindow fluid only={i} screen={seen ? i : -1} staticMode={staticMode} />
-      </div>
-    </section>
-  );
-}
-
-function StackTour({ staticMode }: { staticMode: boolean }) {
-  const [ref, seen] = useInView<HTMLElement>();
-  const [prog, setProg] = useState(staticMode ? 1 : 0);
 
   useEffect(() => {
-    if (staticMode || !seen) return;
-    let raf = 0;
-    const s = performance.now();
-    const loop = (n: number) => {
-      const v = Math.min(1, (n - s) / 1800);
-      setProg(v);
-      if (v < 1) raf = requestAnimationFrame(loop);
+    const reduced = reducedMotion();
+    const build = async (v: View): Promise<ViewHandle> => {
+      if (handles.current[v]) return handles.current[v]!;
+      await document.fonts.ready;
+      const root = roots.current[v]!;
+      let h: ViewHandle;
+      if (v === "galerie")
+        h = (await import("@/experience/gallery")).createGallery(root, {
+          reduced,
+          onIntroDone: showDock,
+        });
+      else if (v === "ecrans")
+        h = (await import("@/experience/grid")).createGrid(root, { reduced });
+      else h = (await import("@/experience/studio")).createStudio(root, { reduced });
+      handles.current[v] = h;
+      return h;
     };
-    raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
-  }, [seen, staticMode]);
+    (async () => {
+      const prev = current.current;
+      if (prev === view) return;
+      // Marqué tout de suite : le double appel de l'effet en développement ne relance rien.
+      current.current = view;
+      if (prev) {
+        const el = roots.current[prev]!;
+        await gsap.to(el, { opacity: 0, duration: 0.35, ease: "power2.in" });
+        handles.current[prev]?.stop();
+        el.style.visibility = "hidden";
+      }
+      if (current.current !== view) return;
+      const el = roots.current[view]!;
+      el.style.visibility = "visible";
+      const h = await build(view);
+      if (current.current !== view) return;
+      h.start();
+      gsap.to(el, { opacity: 1, duration: 0.5, ease: "power2.out" });
+      if (view !== "galerie") showDock();
+    })();
+  }, [view]);
+
+  const go = (v: View) => {
+    setMenu(false);
+    window.location.hash = v;
+  };
 
   return (
-    <div className="mc-page mc-stack">
-      <TopBar />
-      <section className="mc-stack-hero">
-        <Hero onEnter={() => document.getElementById("tour")?.scrollIntoView({ behavior: staticMode ? "auto" : "smooth" })} />
-      </section>
-      <div id="tour">
-        {CHAPTERS.map((_, i) => (
-          <StackSection key={i} i={i} staticMode={staticMode} />
+    <main className="xp">
+      {VIEWS.map((v) => (
+        <section
+          key={v.id}
+          className="xp-view"
+          ref={(el) => {
+            roots.current[v.id] = el;
+          }}
+          aria-label={v.label}
+        />
+      ))}
+      <nav className="dock" ref={dock} aria-label="Navigation">
+        <button type="button" className="dock-mark" onClick={() => go("galerie")}>
+          Mon Comptable
+        </button>
+        <span className="dock-div" />
+        {VIEWS.map((v) => (
+          <button
+            key={v.id}
+            type="button"
+            className={`dock-tab${view === v.id ? " is-active" : ""}`}
+            onClick={() => go(v.id)}
+            aria-current={view === v.id ? "page" : undefined}
+          >
+            <span className="dock-label">{v.label}</span>
+            <span className="dock-num">{v.n}</span>
+          </button>
+        ))}
+        <span className="dock-div" />
+        <button
+          type="button"
+          className={`dock-dot${menu ? " is-open" : ""}`}
+          onClick={() => setMenu((m) => !m)}
+          aria-expanded={menu}
+          aria-label="Menu"
+        >
+          <i />
+        </button>
+        <a className="dock-cta" href={DOWNLOAD.url}>
+          Télécharger
+        </a>
+      </nav>
+      <div className={`dock-menu${menu ? " is-open" : ""}`} aria-hidden={!menu}>
+        <p>Version {DOWNLOAD.version} pour Windows 10 et 11, sans internet.</p>
+        {[...VIEWS].reverse().map((v) => (
+          <button key={v.id} type="button" onClick={() => go(v.id)} tabIndex={menu ? 0 : -1}>
+            {v.label} <span>0{v.n}</span>
+          </button>
         ))}
       </div>
-      <section ref={ref} className="mc-stack-sec mc-stack-install">
-        <InstallCard progress={prog} done={prog >= 1} />
-      </section>
-      <SiteExtras />
-    </div>
+    </main>
+  );
+}
+
+/** Sans WebGL : la même information, en simple page. */
+function Fallback() {
+  return (
+    <main className="fb">
+      <h1>Mon Comptable</h1>
+      <p>La comptabilité de votre entreprise, claire, précise et rapide, même sans internet.</p>
+      <a className="fb-cta" href={DOWNLOAD.url}>
+        Télécharger pour Windows
+      </a>
+      <p className="fb-meta">
+        Version {DOWNLOAD.version} · {DOWNLOAD.size} · SHA-256 {DOWNLOAD.sha}
+      </p>
+      <div className="fb-grid">
+        {SCREENS.map((s) => (
+          <figure key={s.file}>
+            <img src={screenUrl(s)} alt={`${s.title}, capture de Mon Comptable`} loading="lazy" />
+            <figcaption>
+              <b>{s.title}</b> {s.description}
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+      <p className="fb-meta">
+        WhatsApp {DOWNLOAD.whatsapp} · {DOWNLOAD.email}
+      </p>
+    </main>
   );
 }
